@@ -36,6 +36,10 @@
     <div class="section">
       <h5>View Options</h5>
       <div class="editor-option">
+      <label class="small">Format</label>
+      <select ng-change="set_refresh(true)" class="input-small" ng-model="panel.format" ng-options="f for f in ['number','bytes']"></select>
+    </div>
+      <div class="editor-option">
         <label class="small">Style</label>
         <select class="input-small" ng-model="panel.chart" ng-options="f for f in ['bar','pie','table']"></select></span>
       </div>

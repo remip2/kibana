@@ -16,9 +16,10 @@ define([
   'app',
   'lodash',
   'jquery',
-  'kbn'
+  'kbn',
+  'numeral'
 ],
-function (angular, app, _, $, kbn) {
+function (angular, app, _, $, kbn, numeral) {
   'use strict';
 
   var module = angular.module('kibana.panels.terms', []);
@@ -125,7 +126,8 @@ function (angular, app, _, $, kbn) {
       /** @scratch /panels/terms/5
        * valuefield:: Terms_stats facet value field
        */
-      valuefield  : ''
+      valuefield  : '',
+      format: 'number'
     };
 
     _.defaults($scope.panel,_d);
@@ -307,11 +309,15 @@ function (angular, app, _, $, kbn) {
           _.without(chartData,_.findWhere(chartData,{meta:'other'}));
 
           // Populate element.
-          require(['jquery.flot.pie'], function(){
+          require(['jquery.flot.pie', 'jquery.flot.byte'], function(){
             // Populate element
             try {
               // Add plot to scope so we can build out own legend
               if(scope.panel.chart === 'bar') {
+                var mode = 'number';
+                if(scope.panel.format === 'bytes') {
+                  mode = 'byte';
+                }
                 plot = $.plot(elem, chartData, {
                   legend: { show: false },
                   series: {
@@ -319,7 +325,7 @@ function (angular, app, _, $, kbn) {
                     bars:   { show: true,  fill: 1, barWidth: 0.8, horizontal: false },
                     shadowSize: 1
                   },
-                  yaxis: { show: true, min: 0, color: "#c8c8c8" },
+                  yaxis: { show: true, min: 0, color: "#c8c8c8", mode: mode },
                   xaxis: { show: false },
                   grid: {
                     borderWidth: 0,
@@ -405,6 +411,19 @@ function (angular, app, _, $, kbn) {
         });
 
       }
+    };
+  });
+  
+  module.filter('formatterms', function(){
+    return function (value,format) {
+      switch (format) {
+      case 'bytes':
+        value = numeral(value).format('0.00b');
+        break;
+      default:
+        value = numeral(value).format('0,0');
+      }
+      return value;
     };
   });
 

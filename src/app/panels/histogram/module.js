@@ -81,6 +81,7 @@ function (angular, app, $, _, kbn, moment, timeSeries, numeral) {
        * value_field:: y-axis field if +mode+ is set to mean, max, min or total. Must be numeric.
        */
       value_field   : null,
+      script        : false,
       /** @scratch /panels/histogram/3
        * x-axis:: Show the x-axis
        */
@@ -357,7 +358,13 @@ function (angular, app, $, _, kbn, moment, timeSeries, numeral) {
             $scope.panel.error = "In " + $scope.panel.mode + " mode a field must be specified";
             return;
           }
-          facet = facet.keyField($scope.panel.time_field).valueField($scope.panel.value_field).global(true);
+          facet = facet.keyField($scope.panel.time_field);
+          if($scope.panel.script) {
+            facet = facet.valueScript($scope.panel.value_field);
+          } else {
+            facet = facet.valueField($scope.panel.value_field);
+          }
+          facet = facet.global(true);
         }
         facet = facet.interval(_interval).facetFilter($scope.ejs.QueryFilter(query));
         request = request.facet(facet)
